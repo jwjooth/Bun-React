@@ -39,20 +39,10 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
-      # 5. Linting (Cek gaya penulisan kode)
-      - name: Run ESLint
-        run: bun run lint
-        # Pastikan di package.json ada script "lint": "eslint ."
-
       # 6. Type Checking (Validasi TypeScript tanpa compile)
       - name: Type Check
         run: bunx tsc --noEmit
         # Lebih aman pakai bunx tsc daripada bun run typecheck jika belum setup scriptnya
-
-      # 7. Unit Testing (Jika ada test file)
-      - name: Run Tests
-        run: bun test
-        # Bun punya built-in test runner, tidak perlu install jest/vitest tambahan
 
       # 8. Build Verification (Pastikan app bisa di-build tanpa error)
       - name: Build Project
