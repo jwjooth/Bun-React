@@ -1,0 +1,69 @@
+name: Bun React Dev CI
+
+# Trigger workflow saat ada push/PR ke main, atau perubahan pada file source
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  # Opsional: Jalankan manual dari tab Actions jika butuh re-check
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: Code Quality & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Ambil kode dari repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Install Bun Runtime (Versi terbaru/stabil)
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest 
+          # Tips: Untuk stabilitas tim, ganti 'latest' dengan versi spesifik misal '1.1.30'
+
+      # 3. Caching Dependencies (Agar install berikutnya super cepat)
+      - name: Cache Bun Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      # 4. Install Dependencies (Frozen agar konsisten dengan local)
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      # 5. Linting (Cek gaya penulisan kode)
+      - name: Run ESLint
+        run: bun run lint
+        # Pastikan di package.json ada script "lint": "eslint ."
+
+      # 6. Type Checking (Validasi TypeScript tanpa compile)
+      - name: Type Check
+        run: bunx tsc --noEmit
+        # Lebih aman pakai bunx tsc daripada bun run typecheck jika belum setup scriptnya
+
+      # 7. Unit Testing (Jika ada test file)
+      - name: Run Tests
+        run: bun test
+        # Bun punya built-in test runner, tidak perlu install jest/vitest tambahan
+
+      # 8. Build Verification (Pastikan app bisa di-build tanpa error)
+      - name: Build Project
+        run: bun run build
+        # Memastikan tidak ada error import atau konfigurasi Vite yang salah
+
+      # 9. Upload Build Artifact (Opsional: untuk debugging atau preview)
+      - name: Upload Build Output
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist/ # Sesuaikan dengan output folder Vite kamu (biasanya 'dist' atau 'build')
+          retention-days: 3 # Simpan artifact selama 3 hari saja untuk hemat storage
