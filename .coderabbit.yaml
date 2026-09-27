@@ -8,5 +8,7 @@ reviews:
   # 1. Izinkan bot menyetujui otomatis jika tidak ada bug kritis
   auto_approve_if_clean: true
   
-  # 2. AKTIFKAN INI agar perintah @coderabbitai approve/resolve berfungsi
+  # 2. AKTIFKAN INI agar perintah @coderabbitai approve/resolve berfungsi.
+  #    CodeRabbit otomatis menyetujui PR setelah komentar CodeRabbit diselesaikan,
+  #    commit terbaru ditinjau, dan pemeriksaan pra-merge lulus.
   request_changes_workflow: true
